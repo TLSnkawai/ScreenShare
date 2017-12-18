@@ -7,7 +7,7 @@
 
 $(document).ready(function () {
 
-    var APIKEY = '9d46d478-e4a3-49e5-b743-e7bbe059ad03';
+    var APIKEY = 'e31a07c3-9c2b-4181-90f9-d50b9fea1ab1';//'9d46d478-e4a3-49e5-b743-e7bbe059ad03';
 
     //ユーザーリスト
     var userList = [];
@@ -22,7 +22,7 @@ $(document).ready(function () {
     var peer = new Peer({ key: APIKEY, debug: 3 });
 
     // スクリーンキャプチャの準備
-    var screen = new SkyWay.ScreenShare({debug: true});
+    var screen = ScreenShare.create({debug: true});
 
     // PeerIDを生成
     peer.on('open', function () {
@@ -31,9 +31,9 @@ $(document).ready(function () {
 
     //相手からデータコネクションで受信が来た時に相手側のメディアストリームを呼ぶ
     //そうするとこちらからの画面だけを送信できる
-    peer.on('connection', function(conn) {
+    peer.on('connection', conn => {
         conn.send('host');
-        conn.on('data', function(data) {
+        conn.on('data', data => {
             if(data === 'host?') {
                 conn.send('host');
                 console.log('Received', data);
@@ -68,20 +68,25 @@ $(document).ready(function () {
 
         //スクリーンシェアを開始
         $('#start-screen').click(function () {
-            if(screen.isEnabledExtension()){
-                screen.startScreenShare({
+            if(screen.isScreenShareAvailable() === false){
+                screen.start({
                     Width: $('#Width').val(),
                     Height: $('#Height').val(),
                     FrameRate: $('#FrameRate').val()
-                },function (stream) {
+                })
+                .then(stream => {
                     attachMediaStream_($('#my-video')[0],stream);
                     localStream = stream;
 
-                },function(error){
+                })
+                .then(error => {
                     console.log(error);
-                },function(){
+                });
+                /*
+                ,function(){
                     alert('ScreenShareを終了しました');
                 });
+                */
             } else {
                 alert('ExtensionまたはAddonをインストールして下さい');
             }

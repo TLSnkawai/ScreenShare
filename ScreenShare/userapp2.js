@@ -7,7 +7,7 @@
 
 $(document).ready(function () {
 
-    var APIKEY = '9d46d478-e4a3-49e5-b743-e7bbe059ad03';
+    var APIKEY = 'e31a07c3-9c2b-4181-90f9-d50b9fea1ab1';//'9d46d478-e4a3-49e5-b743-e7bbe059ad03';
 
     //ユーザーリスト
     var userList = [];
@@ -25,25 +25,16 @@ $(document).ready(function () {
 
     var hostConn;
 
-    if(peer) {
-        peer.listAllPeers(function(list) { 
-            for(var peerID in list) {
-                var conn = peer.connect(list[peerID]);
-                dataConnMessage(conn);
-            }
-        });
-    }
-
     function dataConnMessage(conn) {
         // メッセージを受信できるようになった時
-        conn.on('open', function(data) {
+        conn.on('open', data => {
             console.log('Received', data);
             // 接続先のhostか聞いてみる
             conn.send('host?');
         });
 
         //メッセージを受信
-        conn.on('data', function(data) {
+        conn.on('data', data => {
             if(data === 'host') {
                 hostConn = conn;
                 conn.send('getStream');
@@ -62,6 +53,14 @@ $(document).ready(function () {
     // PeerIDを生成
     peer.on('open', function () {
         $('#my-id').text(peer.id);
+        if(peer) {
+            peer.listAllPeers(function(list) { 
+                for(var peerID in list) {
+                    var conn = peer.connect(list[peerID]);
+                    dataConnMessage(conn);
+                }
+            });
+        }
     });
 
     // 相手からのコールを受信したら自身のメディアストリームをセットして返答

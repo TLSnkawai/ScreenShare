@@ -7,8 +7,7 @@
 
 $(document).ready(function () {
 
-    //APIキー（6165842a-5c0d-11e3-b514-75d3313b9d05はlocalhostのみ利用可能）
-    var APIKEY = '9d46d478-e4a3-49e5-b743-e7bbe059ad03';
+    var APIKEY = 'e31a07c3-9c2b-4181-90f9-d50b9fea1ab1';//'9d46d478-e4a3-49e5-b743-e7bbe059ad03';
 
     //ユーザーリスト
     var userList = [];
@@ -25,7 +24,7 @@ $(document).ready(function () {
     var peer = new Peer({ key: APIKEY, debug: 3 });
 
     // スクリーンキャプチャの準備
-    var screen = new SkyWay.ScreenShare({debug: true});
+    var screen = ScreenShare.create({debug: true});
 
     // PeerIDを生成
     peer.on('open', function () {
