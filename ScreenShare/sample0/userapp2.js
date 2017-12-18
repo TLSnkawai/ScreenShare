@@ -55,6 +55,7 @@ $(document).ready(function () {
     // PeerIDを生成
     peer.on('open', function () {
         $('#my-id').text(peer.id);
+
         if(peer) {
             peer.listAllPeers(function(list) { 
                 for(var peerID in list) {
