@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<head>
+    <title>SkyWay</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link rel="stylesheet" href="style.css">
+    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
+    <script type="text/javascript" src="https://skyway.io/dist/adapter.js"></script>
+    <script type="text/javascript" src="https://skyway.io/dist/0.3/peer.js"></script>
+    <script type="text/javascript" src="https://skyway.io/dist/screenshare.js"></script>
+    <script type="text/javascript" src="app3.js"></script>
+</head>
+
+<body>
+
+<div class="pure-g">
+
+    <!-- Video area -->
+    <div class="pure-u-2-3" id="video-container">
+        <p>Peer Video</p>
+        <video id="their-video" autoplay></video>
+        <p>My Video(640☓360固定)</p>
+        <video id="my-video" muted="true" width="640" height="360" autoplay></video>
+    </div>
+
+    <!-- Steps -->
+    <div class="pure-u-1-3" id="control">
+        <h2>SkyWay Screen Share Demo</h2>
+        <label>メディアリソース選択</label>
+        <p><a href="#" class="pure-button pure-button-success" id="start-screen">スクリーンシェア</a></p>
+        <p><label>Width : </label><input id="Width" size="5" value="1920"></p>
+        <p><label>Height : </label><input id="Height" size="5" value="1080"></p>
+        <p><label>FrameRate : </label><input id="FrameRate" size="5" value="15"></p>
+
+        <!-- Make calls to others -->
+        <div id="ConnectionOut">
+            <p>あなたのPeerID: <span id="my-id">...</span></p>
+            <h3>相手のコネクションを遮断</h3>
+            <div class="pure-form">
+                <label for="otherpeerid">接続先のPeerID：</label>
+                <input id="otherpeerid">
+                <a href="#" class="pure-button pure-button-success" id="make-call">遮断</a>
+            </div>
+        </div>
+    </div>
+    <div id="users"></div>
+</div>
+
+</body>
+</html>
