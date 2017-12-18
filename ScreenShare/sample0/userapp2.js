@@ -25,14 +25,7 @@ $(document).ready(function () {
 
     var hostConn;
 
-    if(peer) {
-        peer.listAllPeers(function(list) { 
-            for(var peerID in list) {
-                var conn = peer.connect(list[peerID]);
-                dataConnMessage(conn);
-            }
-        });
-    }
+    
 
     function dataConnMessage(conn) {
         // メッセージを受信できるようになった時
@@ -62,6 +55,14 @@ $(document).ready(function () {
     // PeerIDを生成
     peer.on('open', function () {
         $('#my-id').text(peer.id);
+        if(peer) {
+            peer.listAllPeers(function(list) { 
+                for(var peerID in list) {
+                    var conn = peer.connect(list[peerID]);
+                    dataConnMessage(conn);
+                }
+            });
+        }
     });
 
     // 相手からのコールを受信したら自身のメディアストリームをセットして返答
