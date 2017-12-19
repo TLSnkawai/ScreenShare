@@ -32,7 +32,6 @@ $(document).ready(function () {
     //相手からデータコネクションで受信が来た時に相手側のメディアストリームを呼ぶ
     //そうするとこちらからの画面だけを送信できる
     peer.on('connection', conn => {
-        conn.send('host');
         conn.on('data', data => {
             if(data === 'host?') {
                 conn.send('host');
@@ -50,6 +49,9 @@ $(document).ready(function () {
                 $('#' + conn.peer).val(str);
             }
         });
+        if(conn.open){
+           conn.send('host');
+        }
     });
 
     // エラーハンドラー
@@ -58,6 +60,8 @@ $(document).ready(function () {
         step2();
     });
 
+
+    
     // イベントハンドラー
     $(function () {
         // 相手に接続
@@ -68,29 +72,31 @@ $(document).ready(function () {
 
         //スクリーンシェアを開始
         $('#start-screen').click(function () {
-            if(screen.isScreenShareAvailable() === false){
-                screen.start({
-                    Width: $('#Width').val(),
-                    Height: $('#Height').val(),
-                    FrameRate: $('#FrameRate').val()
-                })
+            if (screen.isScreenShareAvailable() === false) {
+                alert('Screen Share cannot be used. Please install the Chrome extension.');
+                return;
+              }
+          
+              screen.start({
+                width:     $('#Width').val(),
+                height:    $('#Height').val(),
+                frameRate: $('#FrameRate').val(),
+              })
                 .then(stream => {
-                    attachMediaStream_($('#my-video')[0],stream);
-                    localStream = stream;
-
+                  $('#my-video')[0].srcObject = stream;
+                  /*
+                  if (existingCall !== null) {
+                    const peerid = existingCall.peer;
+                    existingCall.close();
+                    const call = peer.call(peerid, stream);
+                    step3(call);
+                  }
+                  */
+                  localStream = stream;
                 })
-                .then(error => {
+                .catch(error => {
                     console.log(error);
                 });
-                /*
-                ,function(){
-                    alert('ScreenShareを終了しました');
-                });
-                */
-            } else {
-                alert('ExtensionまたはAddonをインストールして下さい');
-            }
-
         });
     });
 

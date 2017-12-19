@@ -8,7 +8,7 @@
             "type": "chrome",
             "request": "launch",
             "name": "Launch Chrome against localhost",
-            "url": "http://localhost/SkyWayScreenShare/sample/ScreenShare/",
+            "url": "http://localhost/ScreenShare/ScreenShare/user.html",
             "webRoot": "${workspaceFolder}"
         }
     ]
