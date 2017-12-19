@@ -7,6 +7,9 @@
 
 $(document).ready(function () {
 
+    var screenW = 0;
+    var screenH = 0;
+
     var APIKEY = 'e31a07c3-9c2b-4181-90f9-d50b9fea1ab1';//'9d46d478-e4a3-49e5-b743-e7bbe059ad03';
 
     //ユーザーリスト
@@ -33,25 +36,42 @@ $(document).ready(function () {
     //そうするとこちらからの画面だけを送信できる
     peer.on('connection', conn => {
         conn.on('data', data => {
-            if(data === 'host?') {
-                conn.send('host');
-                console.log('Received', data);
-            } else if(data === 'getStream') {
-                if(localStream){
-                    peer.call(conn.peer, localStream);
-                    $('#users').append('<textarea id="' + conn.peer + '"></textarea>');
-                } else {
-                    conn.send('readyStream');
+            var jsonData = JSON.parse(data);
+
+            if(jsonData["type"] === 'message'){
+                if(jsonData["message"] === 'isHost') {
+                    // 画面共有元であることを伝える
+                    var jsonStr = JSON.stringify({ type:'message', message:'host' });
+                    conn.send(jsonStr);
+                    console.log('Received', jsonData);
+                // 相手からgetStreamが来た時
+                } else if(jsonData["message"] === 'getStream') {
+                    if(localStream){
+                        //メディアストリームを相手に送る
+                        peer.call(conn.peer, localStream);
+                        $('#users').append('<textarea id="' + conn.peer + '"></textarea>');
+                        var jsonStr = JSON.stringify({ type:'message', message:'okStream' });
+                        conn.send(jsonStr);
+                    } else {
+                        var jsonStr = JSON.stringify({ type:'message', message:'readyStream' });
+                        conn.send(jsonStr);
+                    }
+                } else if(jsonData["message"] === 'getScreenSize'){
+                    var jsonStr = JSON.stringify({ type:'message', message:'screenSize' , w:$('#Width').val(),h:$('#Height').val() });
+                    conn.send(jsonStr);
+                } else if(jsonData["message"] === 'timeline') {
+                    var str = $('#' + conn.peer).val() + '\n' + jsonData['text'];
+                    str = str.replace(/\\n/g, "\n");
+                    $('#' + conn.peer).val(str);
                 }
-            } else {
-                var str = $('#' + conn.peer).val() + '\n' + data
-                str = str.replace(/\\n/g, "\n");
-                $('#' + conn.peer).val(str);
             }
         });
+
+        /*
         if(conn.open){
            conn.send('host');
         }
+        */
     });
 
     // エラーハンドラー
@@ -76,7 +96,8 @@ $(document).ready(function () {
                 alert('Screen Share cannot be used. Please install the Chrome extension.');
                 return;
               }
-          
+              screenW = $('#Width').val();
+              screenH = $('#Height').val();
               screen.start({
                 width:     $('#Width').val(),
                 height:    $('#Height').val(),
@@ -84,14 +105,6 @@ $(document).ready(function () {
               })
                 .then(stream => {
                   $('#my-video')[0].srcObject = stream;
-                  /*
-                  if (existingCall !== null) {
-                    const peerid = existingCall.peer;
-                    existingCall.close();
-                    const call = peer.call(peerid, stream);
-                    step3(call);
-                  }
-                  */
                   localStream = stream;
                 })
                 .catch(error => {

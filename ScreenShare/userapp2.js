@@ -29,21 +29,37 @@ $(document).ready(function () {
         // メッセージを受信できるようになった時
         conn.on('open', data => {
             console.log('Received', data);
-            // 接続先のhostか聞いてみる
-            conn.send('host?');
+            // 接続先にhostか聞いてみる
+            var jsonStr = JSON.stringify({ type:'message', message:'isHost' });
+            conn.send(jsonStr);
+            //conn.send('host?');
         });
 
         //メッセージを受信
         conn.on('data', data => {
-            if(data === 'host') {
-                hostConn = conn;
-                conn.send('getStream');
-                $('#otherpeerid').val(conn.peer);
-            } else if(data === 'readyStream') {
-                //準備中
-                $('#otherpeerid').val(conn.peer);
-            } else {
-                conn.close();
+
+            var jsonData = JSON.parse(data);
+
+            if(jsonData["type"] === 'message') {
+                if(jsonData["message"] === 'host') {
+                    hostConn = conn;
+                    var jsonStr = JSON.stringify({ type:'message', message:'getStream' });
+                    conn.send(jsonStr);
+                    $('#otherpeerid').val(conn.peer);
+                } else if(jsonData["message"] === 'okStream') {
+                    var jsonStr = JSON.stringify({ type:'message', message:'getScreenSize' });
+                    conn.send(jsonStr);
+                } else if(jsonData["message"] === 'screenSize') {
+                    var screenW = jsonData["w"];
+                    var screenH = jsonData["h"];
+                    $('video#their-video').attr('width', screenW);
+                    $('video#their-video').attr('height', screenH);
+                } else if(jsonData["message"] === 'readyStream') {
+                    //準備中
+                    $('#otherpeerid').val(conn.peer);
+                } else {
+                    conn.close();
+                }
             }
         });
     }
@@ -85,13 +101,18 @@ $(document).ready(function () {
         $('#their-video').show();
     });
 
+    // ゲスト(画面共有したい側)からゲスト(画面共有したい側)に接続しようとした場合
     //相手からデータコネクションで受信が来た時に相手側のメディアストリームを呼ぶ
     //そうするとこちらからの画面だけを送信できる
     peer.on('connection', function(conn) {
         conn.on('data', function(data) {
-            if(data === 'host?') {
-                conn.send('gest');
-                console.log('Received', data);
+            var jsonData = JSON.parse(data);
+            if(jsonData["type"] === 'message'){
+                if(jsonData["message"] === 'isHost') {
+                    var jsonStr = JSON.stringify({ type:'message', message:'gest' });
+                    conn.send(jsonStr);
+                    console.log('Received', data);
+                }
             }
         });
     });
@@ -118,7 +139,9 @@ $(document).ready(function () {
         });
 
         $('#timelineSend').click(function(){
-            hostConn.send($('#timeline').val());
+            var text = $('#timeline').val();
+            var jsonStr = JSON.stringify({ type:'message', message:'timeline' , text:text });
+            hostConn.send(jsonStr);
             $('#timeline').val('');
         });
 
